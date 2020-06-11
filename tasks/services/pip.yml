@@ -1,0 +1,5 @@
+- name: Install PIP
+  package:
+    name: "{{ system_ansible_pip }}"
+  tags:
+    - setup

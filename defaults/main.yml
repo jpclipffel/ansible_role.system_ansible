@@ -8,3 +8,6 @@ system_ansible_sudoers_file: "/etc/sudoers.d/{{ system_ansible_user_name }}"
 # SSH
 system_ansible_public_key_file: "{{ ansible_public_key_file | default('') }}"
 system_ansible_public_key: ""
+
+# PIP
+system_ansible_pip: "python3-pip"
