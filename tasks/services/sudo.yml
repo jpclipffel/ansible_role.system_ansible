@@ -1,0 +1,16 @@
+- name: Install sudo configuration
+  template:
+    src: sudoers.j2
+    dest: "{{ system_ansible_sudoers_file }}"
+  tags:
+    - setup
+
+# ---
+
+- name: Remove sudo configuration
+  file:
+    path: "{{ system_ansible_sudoers_file }}"
+    state: absent
+  tags:
+    - teardown
+    - remove

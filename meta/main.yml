@@ -1,0 +1,3 @@
+galaxy_info:
+  role_name: system_ansible
+  description: Setup hosts to let Ansible manage them.

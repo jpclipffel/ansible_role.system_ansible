@@ -1,0 +1,7 @@
+- name: Include generic Linux tasks
+  include_tasks:
+    file: linux_generic.yml
+  when:
+    - ansible_system == "Linux"
+  tags:
+    - always
