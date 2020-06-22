@@ -1,5 +1,5 @@
 # Ansible user account
-system_ansible_user_name: "{{ ansible_user }}"
+system_ansible_user_name: "ansctl"
 system_ansible_user_comment: "Ansible user account"
 
 # Sudoers
