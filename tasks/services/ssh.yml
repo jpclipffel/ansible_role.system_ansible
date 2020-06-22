@@ -24,10 +24,10 @@
 - name: Remove Ansible user public key (from file)
   authorized_key:
     user: "{{ system_ansible_user_name }}"
-    key: "{{ lookup('file', system_ansible_public_key) }}"
+    key: "{{ lookup('file', system_ansible_public_key_file) }}"
     state: absent
   when:
-    - system_ansible_public_key is defined and system_ansible_public_key | length > 0
+    - system_ansible_public_key_file is defined and system_ansible_public_key_file | length > 0
   tags:
     - teardown
     - remove
