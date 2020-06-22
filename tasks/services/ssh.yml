@@ -12,7 +12,7 @@
 - name: Install Ansible user public key (from variable)
   authorized_key:
     user: "{{ system_ansible_user_name }}"
-    key: "{{ lookup('file', system_ansible_public_key) }}"
+    key: "{{ system_ansible_public_key }}"
     state: present
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
@@ -36,7 +36,7 @@
 - name: Remove Ansible user public key (from variable)
   authorized_key:
     user: "{{ system_ansible_user_name }}"
-    key: "{{ lookup('file', system_ansible_public_key) }}"
+    key: "{{ system_ansible_public_key }}"
     state: absent
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
