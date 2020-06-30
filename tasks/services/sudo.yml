@@ -3,6 +3,7 @@
     src: sudoers.j2
     dest: "{{ system_ansible_sudoers_file }}"
   tags:
+    - never
     - setup
 
 # ---
@@ -12,5 +13,6 @@
     path: "{{ system_ansible_sudoers_file }}"
     state: absent
   tags:
+    - never
     - teardown
     - remove

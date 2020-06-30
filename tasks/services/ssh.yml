@@ -6,6 +6,7 @@
   when:
     - system_ansible_public_key_file is defined and system_ansible_public_key_file | length > 0
   tags:
+    - never
     - setup
 
 
@@ -17,6 +18,7 @@
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
   tags:
+    - never
     - setup
 
 # ---
@@ -29,6 +31,7 @@
   when:
     - system_ansible_public_key_file is defined and system_ansible_public_key_file | length > 0
   tags:
+    - never
     - teardown
     - remove
 
@@ -41,5 +44,6 @@
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
   tags:
+    - never
     - teardown
     - remove

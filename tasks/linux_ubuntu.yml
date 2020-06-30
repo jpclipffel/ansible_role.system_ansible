@@ -12,6 +12,7 @@
     state: present
     password_lock: yes
   tags:
+    - never
     - setup
 
 
@@ -22,4 +23,5 @@
     - services/sudo.yml
     - services/pip.yml
   tags:
+    - never
     - always
