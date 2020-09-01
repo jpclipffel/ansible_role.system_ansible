@@ -1,3 +1,5 @@
+# code: language=Ansible insertSpaces=true tabSize=2
+
 - name: Install Ansible user public key (from file)
   authorized_key:
     user: "{{ system_ansible_user_name }}"
