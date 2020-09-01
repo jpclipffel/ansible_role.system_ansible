@@ -33,7 +33,9 @@ main.yml
 |
 | -------------- tags: setup, teardown, remove --
 |
-\__ linux_generic.yml
+\__ linux_<distribution>.yml
+    |
+    \__ services/pip.yml
     |
     \__ services/ssh.yml
     |
