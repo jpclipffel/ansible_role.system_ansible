@@ -18,6 +18,12 @@
     - setup
 
 
+- name: Update packages list
+  apt:
+    update_cache: yes
+  tags: [never, setup]
+
+
 - include_tasks:
     file: "{{ item }}"
   loop:
@@ -25,5 +31,4 @@
     - services/sudo.yml
     - services/pip.yml
   tags:
-    - never
     - always
