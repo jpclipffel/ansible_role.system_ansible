@@ -1,5 +1,6 @@
 # code: language=Ansible insertSpaces=true tabSize=2
 
+
 - name: Set custom facts
   set_fact:
     system_ansible_pip: "python{{ ansible_python.version.major }}-pip"
@@ -30,5 +31,6 @@
     - services/ssh.yml
     - services/sudo.yml
     - services/pip.yml
+    - services/password.yml
   tags:
     - always
