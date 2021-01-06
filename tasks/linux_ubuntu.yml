@@ -13,7 +13,6 @@
     name: "{{ system_ansible_user_name }}"
     comment: "{{ system_ansible_user_comment }}"
     state: present
-    password_lock: yes
   tags:
     - never
     - setup
