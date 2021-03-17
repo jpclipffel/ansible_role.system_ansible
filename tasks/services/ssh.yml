@@ -23,6 +23,31 @@
     - never
     - setup
 
+
+- name: Install Ansible user public key (from GitLab)
+  authorized_key:
+    user: "{{ system_ansible_user_name }}"
+    key: "{{ item.0.url }}/{{ item.1 }}.keys"
+    state: present
+  when:
+    - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
+  loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+  tags:
+    - never
+    - setup
+
+
+- name: Install Ansible user public key (rescue)
+  authorized_key:
+    user: "{{ system_ansible_user_name }}"
+    key: "{{ system_ansible_public_key_rescue }}"
+    state: present
+  when:
+    - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
+  tags:
+    - never
+    - setup
+
 # ---
 
 - name: Remove Ansible user public key (from file)
@@ -45,6 +70,33 @@
     state: absent
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
+  tags:
+    - never
+    - teardown
+    - remove
+
+
+- name: Remove Ansible user public key (from GitLab)
+  authorized_key:
+    user: "{{ system_ansible_user_name }}"
+    key: "{{ item.0.url }}/{{ item.1 }}.keys"
+    state: absent
+  when:
+    - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
+  loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+  tags:
+    - never
+    - teardown
+    - remove
+
+
+- name: Remove Ansible user public key (rescue)
+  authorized_key:
+    user: "{{ system_ansible_user_name }}"
+    key: "{{ system_ansible_public_key_rescue }}"
+    state: absent
+  when:
+    - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
   tags:
     - never
     - teardown
