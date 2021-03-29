@@ -26,12 +26,17 @@
 
 - name: Install Ansible user public key (from GitLab)
   authorized_key:
+    follow: yes
+    validate_certs: no
     user: "{{ system_ansible_user_name }}"
-    key: "{{ item.0.url }}/{{ item.1 }}.keys"
+    key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
     state: present
   when:
     - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
   loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+  loop_control:
+    loop_var: _sapkg_item
+  ignore_errors: yes
   tags:
     - never
     - setup
@@ -44,6 +49,7 @@
     state: present
   when:
     - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
+  ignore_errors: yes
   tags:
     - never
     - setup
@@ -78,12 +84,17 @@
 
 - name: Remove Ansible user public key (from GitLab)
   authorized_key:
+    follow: yes
+    validate_certs: no
     user: "{{ system_ansible_user_name }}"
-    key: "{{ item.0.url }}/{{ item.1 }}.keys"
+    key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
     state: absent
   when:
     - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
   loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+  loop_control:
+    loop_var: _sapkg_item
+  ignore_errors: yes
   tags:
     - never
     - teardown
@@ -97,6 +108,7 @@
     state: absent
   when:
     - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
+  ignore_errors: yes
   tags:
     - never
     - teardown
