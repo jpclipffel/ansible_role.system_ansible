@@ -1,115 +1,133 @@
 # code: language=Ansible insertSpaces=true tabSize=2
 
 - name: Install Ansible user public key (from file)
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ system_ansible_user_name }}"
     key: "{{ lookup('file', system_ansible_public_key_file) }}"
     state: present
   when:
     - system_ansible_public_key_file is defined and system_ansible_public_key_file | length > 0
-  tags:
-    - never
-    - setup
-
+  tags: [never, setup]
 
 - name: Install Ansible user public key (from variable)
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ system_ansible_user_name }}"
     key: "{{ system_ansible_public_key }}"
     state: present
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
-  tags:
-    - never
-    - setup
+  tags: [never, setup]
 
-
-- name: Install Ansible user public key (from GitLab)
-  authorized_key:
-    follow: yes
-    validate_certs: no
-    user: "{{ system_ansible_user_name }}"
-    key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
-    state: present
-  when:
-    - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
-  loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
-  loop_control:
-    loop_var: _sapkg_item
-  ignore_errors: yes
-  tags:
-    - never
-    - setup
-
-
-- name: Install Ansible user public key (rescue)
-  authorized_key:
+- name: Install Ansible user rescue public key
+  ansible.posix.authorized_key:
     user: "{{ system_ansible_user_name }}"
     key: "{{ system_ansible_public_key_rescue }}"
     state: present
   when:
     - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
-  ignore_errors: yes
-  tags:
-    - never
-    - setup
+  ignore_errors: true
+  tags: [never, setup]
+
+- name: Create Ansible user public keys temporary directory (for GitLab)
+  tempfile:
+    state: directory
+  register: _keysdir
+  delegate_to: localhost
+  tags: [never, setup]
+
+- name: Download Ansible user public keys (from GitLab)
+  get_url:
+    url: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
+    dest: "{{ _keysdir.path }}/{{ _sapkg_item.1 }}.keys"
+    validate_certs: false
+  when:
+    - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
+  loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+  loop_control:
+    loop_var: _sapkg_item
+  ignore_errors: true
+  delegate_to: localhost
+  tags: [never, setup]
+
+- name: Install Ansible user public key (from GitLab)
+  ansible.posix.authorized_key:
+    user: "{{ system_ansible_user_name }}"
+    key: "{{ lookup('file', _keysdir.path + '/' + _sapkg_item.1 + '.keys') }}"
+  when:
+    - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
+  loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+  loop_control:
+    loop_var: _sapkg_item
+  ignore_errors: true
+  tags: [never, setup]
+
+# - name: Install Ansible user public key (from GitLab)
+#   ansible.posix.authorized_key:
+#     follow: true
+#     validate_certs: False
+#     user: "{{ system_ansible_user_name }}"
+#     key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
+#     # key: "{{ lookup('url', _sapkg_item.0.url + '/' + _sapkg_item.1 + '.keys', validate_certs=false) }}"
+#     state: present
+#   when:
+#     - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
+#   loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+#   loop_control:
+#     loop_var: _sapkg_item
+#   ignore_errors: true
+#   tags: [never, setup]
+
+
 
 # ---
 
 - name: Remove Ansible user public key (from file)
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ system_ansible_user_name }}"
     key: "{{ lookup('file', system_ansible_public_key_file) }}"
     state: absent
   when:
     - system_ansible_public_key_file is defined and system_ansible_public_key_file | length > 0
-  tags:
-    - never
-    - teardown
-    - remove
-
+  tags: [never, teardown, remove]
 
 - name: Remove Ansible user public key (from variable)
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ system_ansible_user_name }}"
     key: "{{ system_ansible_public_key }}"
     state: absent
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
-  tags:
-    - never
-    - teardown
-    - remove
+  tags: [never, teardown, remove]
 
 
-- name: Remove Ansible user public key (from GitLab)
-  authorized_key:
-    follow: yes
-    validate_certs: no
-    user: "{{ system_ansible_user_name }}"
-    key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
-    state: absent
-  when:
-    - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
-  loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
-  loop_control:
-    loop_var: _sapkg_item
-  ignore_errors: yes
-  tags:
-    - never
-    - teardown
-    - remove
+# - name: Remove Ansible user public key (from GitLab)
+#   authorized_key:
+#     follow: yes
+#     validate_certs: no
+#     user: "{{ system_ansible_user_name }}"
+#     key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
+#     state: absent
+#   when:
+#     - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
+#   loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
+#   loop_control:
+#     loop_var: _sapkg_item
+#   ignore_errors: yes
+#   tags:
+#     - never
+#     - teardown
+#     - remove
 
 
-- name: Remove Ansible user public key (rescue)
-  authorized_key:
-    user: "{{ system_ansible_user_name }}"
-    key: "{{ system_ansible_public_key_rescue }}"
-    state: absent
-  when:
-    - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
-  ignore_errors: yes
-  tags:
-    - never
-    - teardown
-    - remove
+# - name: Remove Ansible user public key (rescue)
+#   authorized_key:
+#     user: "{{ system_ansible_user_name }}"
+#     key: "{{ system_ansible_public_key_rescue }}"
+#     state: absent
+#   when:
+#     - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
+#   ignore_errors: yes
+#   tags:
+#     - never
+#     - teardown
+#     - remove
