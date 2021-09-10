@@ -15,7 +15,7 @@
 
 - name: Update packages list
   apt:
-    update_cache: false
+    update_cache: true
   tags: [never, setup]
 
 - include_tasks:
