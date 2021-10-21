@@ -1,5 +1,6 @@
 # code: language=Ansible insertSpaces=true tabSize=2
 
+
 - name: Install sudo configuration
   template:
     src: sudoers.j2
@@ -7,7 +8,6 @@
   tags:
     - never
     - setup
-
 
 - name: Remove sudo configuration
   file:

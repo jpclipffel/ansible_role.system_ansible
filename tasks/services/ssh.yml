@@ -1,5 +1,42 @@
 # code: language=Ansible insertSpaces=true tabSize=2
 
+
+- name: Reset public keys
+  block:
+
+    - name: Get Ansible user account path
+      shell: |
+        getent passwd {{ system_ansible_user_name }} | awk -F: '{ print $6 }'
+      register: _saun
+      changed_when: false
+
+    - name: Backup authorized keys file
+      copy:
+        src: "{{ _saun.stdout }}/.ssh/authorized_keys"
+        dest: "{{ _saun.stdout }}/.ssh/authorized_keys.bak"
+        remote_src: true
+        mode: 0644
+      when:
+        - "_saun.stdout | length > 0"
+
+    - name: Void authorized keys file
+      shell: |
+        echo -n > "{{ _saun.stdout }}/.ssh/authorized_keys"
+      when:
+        - "_saun.stdout | length > 0"
+
+  rescue:
+    - name: Reset authorized keys file
+      copy:
+        src: "{{ _saun.stdout }}/.ssh/authorized_keys.bak"
+        dest: "{{ _saun.stdout }}/.ssh/authorized_keys"
+        remote_src: true
+        mode: 0644
+
+  tags: [never, setup, teardown, remove]
+
+# ---
+
 - name: Install Ansible user public key (from file)
   ansible.posix.authorized_key:
     user: "{{ system_ansible_user_name }}"
@@ -26,7 +63,7 @@
   when:
     - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
   ignore_errors: true
-  tags: [never, setup]
+  tags: [never, setup, skip_ansible_lint]
 
 - name: Create Ansible user public keys temporary directory (for GitLab)
   tempfile:
@@ -47,7 +84,7 @@
     loop_var: _sapkg_item
   ignore_errors: true
   delegate_to: localhost
-  tags: [never, setup]
+  tags: [never, setup, skip_ansible_lint]
 
 - name: Install Ansible user public key (from GitLab)
   ansible.posix.authorized_key:
@@ -59,25 +96,7 @@
   loop_control:
     loop_var: _sapkg_item
   ignore_errors: true
-  tags: [never, setup]
-
-# - name: Install Ansible user public key (from GitLab)
-#   ansible.posix.authorized_key:
-#     follow: true
-#     validate_certs: False
-#     user: "{{ system_ansible_user_name }}"
-#     key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
-#     # key: "{{ lookup('url', _sapkg_item.0.url + '/' + _sapkg_item.1 + '.keys', validate_certs=false) }}"
-#     state: present
-#   when:
-#     - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
-#   loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
-#   loop_control:
-#     loop_var: _sapkg_item
-#   ignore_errors: true
-#   tags: [never, setup]
-
-
+  tags: [never, setup, skip_ansible_lint]
 
 # ---
 
@@ -98,36 +117,3 @@
   when:
     - system_ansible_public_key is defined and system_ansible_public_key | length > 0
   tags: [never, teardown, remove]
-
-
-# - name: Remove Ansible user public key (from GitLab)
-#   authorized_key:
-#     follow: yes
-#     validate_certs: no
-#     user: "{{ system_ansible_user_name }}"
-#     key: "{{ _sapkg_item.0.url }}/{{ _sapkg_item.1 }}.keys"
-#     state: absent
-#   when:
-#     - system_ansible_public_keys_git is defined and system_ansible_public_keys_git | length > 0
-#   loop: "{{ system_ansible_public_keys_git | subelements('users') }}"
-#   loop_control:
-#     loop_var: _sapkg_item
-#   ignore_errors: yes
-#   tags:
-#     - never
-#     - teardown
-#     - remove
-
-
-# - name: Remove Ansible user public key (rescue)
-#   authorized_key:
-#     user: "{{ system_ansible_user_name }}"
-#     key: "{{ system_ansible_public_key_rescue }}"
-#     state: absent
-#   when:
-#     - system_ansible_public_key_rescue is defined and system_ansible_public_key_rescue | length > 0
-#   ignore_errors: yes
-#   tags:
-#     - never
-#     - teardown
-#     - remove
