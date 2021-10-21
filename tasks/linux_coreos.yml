@@ -1,0 +1,13 @@
+# code: language=Ansible insertSpaces=true tabSize=2
+
+
+- name: Set custom facts
+  set_fact:
+    system_ansible_user_name: "core"
+  tags: [always]
+
+- include_tasks:
+    file: "{{ item }}"
+  loop:
+    - services/ssh.yml
+  tags: [always]
