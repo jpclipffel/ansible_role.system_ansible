@@ -11,11 +11,7 @@ system_ansible_public_key_file: "{{ ansible_public_key_file | default('ansctl.rs
 system_ansible_public_key: ""
 system_ansible_public_key_rescue: "{{ lookup('file', 'id_rsa_rescue.pub') }}"
 
-system_ansible_public_keys_git:
-  - url: https://git.dt.ept.lu
-    users:
-      - jpclipffel
-      - ldubreuil
+system_ansible_public_keys_git: []
 
 # PIP
 system_ansible_pip: "python3-pip"
